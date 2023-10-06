@@ -32,7 +32,7 @@ const verifyJWT = (req, res, next) => {
 };
 
 // console.log(process.env.DB_USER);
-// console.log(process.env.DB_PASS); 
+// console.log(process.env.DB_PASS);
 
 const { MongoClient, ServerApiVersion, ObjectId, Admin } = require("mongodb");
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.vuzwqtv.mongodb.net/?retryWrites=true&w=majority`;
@@ -64,23 +64,24 @@ async function run() {
       res.send({ token });
     });
 
-
     //Warning: use verifyJWT before using verifyAdmin
-    const verifyAdmin = async(req, res, next)=>{
+    const verifyAdmin = async (req, res, next) => {
       const email = req.decoded.email;
-      const query = {email: email}
-      const user = await usersCollection.findOne(query)
-      if(user?.role !== 'admin'){
-        return res.status(403).send({error: true, message: 'forbidden message'})
+      const query = { email: email };
+      const user = await usersCollection.findOne(query);
+      if (user?.role !== "admin") {
+        return res
+          .status(403)
+          .send({ error: true, message: "forbidden message" });
       }
-      next()
-    }
+      next();
+    };
 
     /**
      * 0. do not show secure links to those who should not see the links
      * 1. use jwt token: verifyJWT token
      * 2. use verifyAdmin middleware
-    */
+     */
 
     //user related apis
     app.get("/users", verifyJWT, verifyAdmin, async (req, res) => {
@@ -108,8 +109,8 @@ async function run() {
     app.get("/users/admin/:email", verifyJWT, async (req, res) => {
       const email = req.params.email;
 
-      if(req.decoded.email !== email){
-        res.send({admin: false})
+      if (req.decoded.email !== email) {
+        res.send({ admin: false });
       }
 
       const query = { email: email };
@@ -143,6 +144,22 @@ async function run() {
       const result = await menuCollection.find().toArray();
       res.send(result);
     });
+
+    app.post("/menu", verifyJWT, verifyAdmin, async (req, res) => {
+      const newItem = req.body;
+      const result = await menuCollection.insertOne(newItem);
+      res.send(result);
+    });
+
+    app.delete('/menu/:id', verifyJWT, verifyAdmin, async(req, res)=>{
+      const id = req.params.id;
+      console.log(id);
+      const query = {_id: new ObjectId(id)}
+      console.log(query);
+      const result = await menuCollection.deleteOne(query)
+      res.send(result)
+      console.log(result);
+    })
 
     //review related apis
     app.get("/reviews", async (req, res) => {
