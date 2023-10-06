@@ -31,8 +31,8 @@ const verifyJWT = (req, res, next) => {
   });
 };
 
-console.log(process.env.DB_USER);
-console.log(process.env.DB_PASS);
+// console.log(process.env.DB_USER);
+// console.log(process.env.DB_PASS); 
 
 const { MongoClient, ServerApiVersion, ObjectId, Admin } = require("mongodb");
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.vuzwqtv.mongodb.net/?retryWrites=true&w=majority`;
@@ -114,8 +114,8 @@ async function run() {
 
       const query = { email: email };
       const user = await usersCollection.findOne(query);
-      const result = { admin: user?.role === "admin" };
-      res.send();
+      const result = { admin: user?.role === "admin" }; //je login korche se admin ki na seyta check korteche
+      res.send(result);
     });
 
     app.patch("/users/admin/:id", async (req, res) => {
